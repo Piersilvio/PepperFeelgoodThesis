@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/page">
+
+    <TextView
+        android:id="@+id/titolo1"
+        android:layout_width="600dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="228dp"
+        android:layout_marginBottom="483dp"
+        android:fontFamily="@font/childrenbookkids"
+        android:textAlignment="center"
+        android:textSize="45sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.31"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/titolo2"
+        android:layout_width="600dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="220dp"
+        android:layout_marginBottom="385dp"
+        android:fontFamily="@font/childrenbookkids"
+        android:textAlignment="center"
+        android:textSize="45sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.262"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/titolo3"
+        android:layout_width="600dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="220dp"
+        android:layout_marginBottom="287dp"
+        android:fontFamily="@font/childrenbookkids"
+        android:textAlignment="center"
+        android:textSize="45sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.262"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/titolo4"
+        android:layout_width="600dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="220dp"
+        android:layout_marginBottom="191dp"
+        android:fontFamily="@font/childrenbookkids"
+        android:textAlignment="center"
+        android:textSize="45sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.262"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/titolo5"
+        android:layout_width="600dp"
+        android:layout_height="53dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="220dp"
+        android:layout_marginBottom="94dp"
+        android:fontFamily="@font/childrenbookkids"
+        android:textAlignment="center"
+        android:textSize="45sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.262"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/atoz"
+        android:layout_width="105dp"
+        android:layout_height="105dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginEnd="108dp"
+        android:layout_marginBottom="440dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/titolo1"
+        app:srcCompat="@drawable/atoz" />
+
+    <Button
+        android:id="@+id/button_atoz"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginEnd="108dp"
+        android:layout_marginBottom="440dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/titolo1" />
+
+    <ImageView
+        android:id="@+id/ztoa"
+        android:layout_width="105dp"
+        android:layout_height="105dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginEnd="108dp"
+        android:layout_marginBottom="300dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/titolo2"
+        app:srcCompat="@drawable/ztoa" />
+
+    <Button
+        android:id="@+id/button_ztoa"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="92dp"
+        android:layout_marginEnd="108dp"
+        android:layout_marginBottom="300dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/titolo2" />
+
+    <ImageButton
+        android:id="@+id/search_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="75dp"
+        android:layout_marginBottom="190dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/titolo3"
+        app:srcCompat="@drawable/cerca" />
+
+    <EditText
+        android:id="@+id/search_story"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="190dp"
+        android:fontFamily="@font/childrenbookkids"
+        android:textSize="30sp"
+        android:hint="Cerca storia"
+        android:inputType="text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/search_button" />
+
+    <ImageView
+        android:id="@+id/next"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginEnd="305dp"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/freccia" />
+
+    <Button
+        android:id="@+id/next_page"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginEnd="305dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/prev"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginEnd="800dp"
+        android:layout_marginBottom="24dp"
+        android:scaleX="-1"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/freccia" />
+
+    <Button
+        android:id="@+id/previous"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginEnd="800dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
