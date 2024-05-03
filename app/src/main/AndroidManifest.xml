@@ -26,6 +26,8 @@
             android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity android:name="pepper.socialStory.GetStory"
             android:screenOrientation="landscape" />
+        <activity android:name="pepper.socialStory.ActivityMediaPlayer"
+            android:screenOrientation="landscape" />
     </application>
 
     <uses-feature android:name="com.softbank.hardware.pepper"/>

@@ -25,7 +25,7 @@ public class GetTitles extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... voids) {
         try {
-            URL url = new URL ("https://pepper4socialstory.altervista.org/Cartella%20temporanea%20GETTERS/story_list.php");
+            URL url = new URL ("http://pepperfeelgood.altervista.org/Cartella%20temporanea%20GETTERS/story_list.php");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setRequestMethod("GET");
             InputStream inputStream = httpURLConnection.getInputStream();

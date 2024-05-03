@@ -41,7 +41,7 @@
         android:layout_height="1px" />
 
 
-    <com.google.android.exoplayer2.ui.PlayerView
+    <android.view.SurfaceView
         android:id="@+id/videoView"
         android:layout_width="1px"
         android:layout_height="1px" />

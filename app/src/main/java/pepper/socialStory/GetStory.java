@@ -1,15 +1,19 @@
 package pepper.socialStory;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,6 +21,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
@@ -47,6 +54,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import org.json.JSONArray;
@@ -73,7 +81,6 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
     private ImageView imageView;
     private ImageButton nextParagraph;
-    private PlayerView videoView;
     private PlayerView audioView;
     private LinearLayout button_answare;
     private Button answare_right;
@@ -99,7 +106,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
         setContentView(R.layout.get_story);
         imageView = findViewById(R.id.imageView);
-        videoView = findViewById(R.id.videoView);
+
         audioView = findViewById(R.id.audioView);
         nextParagraph = findViewById(R.id.nextParagraph);
 
@@ -115,7 +122,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             protected String doInBackground(String... params) {
                 String table = params[0];
                 try {
-                    URL url = new URL ("https://pepper4socialstory.altervista.org/Cartella%20temporanea%20GETTERS/get_paragraph.php");
+                    URL url = new URL ("http://pepperfeelgood.altervista.org/Cartella%20temporanea%20GETTERS/get_paragraph.php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -182,7 +189,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                 String id = params[1];
                 Bitmap image = null;
                 try {
-                    URL url = new URL ("https://pepper4socialstory.altervista.org/Cartella%20temporanea%20GETTERS/get_image.php");
+                    URL url = new URL ("http://pepperfeelgood.altervista.org/Cartella%20temporanea%20GETTERS/get_image.php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -233,7 +240,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             protected String doInBackground(String... params) {
                 String table = params[0];
                 try {
-                    URL url = new URL ("https://pepper4socialstory.altervista.org/Cartella%20temporanea%20GETTERS/get_color.php");
+                    URL url = new URL ("http://pepperfeelgood.altervista.org/Cartella%20temporanea%20GETTERS/get_color.php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -291,7 +298,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             protected String doInBackground(String... params) {
                 String table = params[0];
                 try {
-                    URL url = new URL ("https://pepper4socialstory.altervista.org/get_video_name.php");
+                    URL url = new URL ("http://pepperfeelgood.altervista.org/get_video_name.php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -349,7 +356,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             protected String doInBackground(String... params) {
                 String table = params[0];
                 try {
-                    URL url = new URL ("https://pepper4socialstory.altervista.org/get_audio_name.php");
+                    URL url = new URL ("http://pepperfeelgood.altervista.org/get_audio_name.php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -407,7 +414,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             protected String doInBackground(String... params) {
                 String table = params[0];
                 try {
-                    URL url = new URL ("https://pepper4socialstory.altervista.org/Cartella%20temporanea%20GETTERS/get_moral.php");
+                    URL url = new URL ("http://pepperfeelgood.altervista.org/Cartella%20temporanea%20GETTERS/get_moral.php");
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -454,55 +461,33 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
     private void getParagraph() {
 
-        if (imageList.get(index) != null) {
+        //FIXME: sistemare la logica degli indici(quando metto == null i video partono, col != null non partono!)
+
+        if (imageList.get(index) == null) {
             imageView.setBackgroundColor(255);
             imageView.setImageBitmap(imageList.get(index));
-        } else if (!videoName.get(index).isEmpty()) { //SE IL NOMEVIDEO NELLA COLONNA DEL DATABASE E' PRESENTE
-            //SE NON SOSTITUISCO GLI SPAZI CON I CARATTERI %20, IL VIDEO NON VIENE VISUALIZZATO
+        } else if (!videoName.get(index).isEmpty()) {
+
             String storyTableNoSpace = PepperStory.storyTitle;
             storyTableNoSpace = storyTableNoSpace.replaceAll(" ", "%20");
-            Log.d("prova video", "prova stringa storyTableNoSpace: " + storyTableNoSpace);
-            String string = "https://pepper4socialstory.altervista.org/get_video2.php?table=" + storyTableNoSpace + "&id=" + index;
+            String string = "http://pepperfeelgood.altervista.org/get_video2.php?table=" + storyTableNoSpace + "&id=" + index;
             Log.d("prova video", "prova stringa connessione: " + string);
-            imageView.setVisibility(View.INVISIBLE);
-            simpleVideoExoPlayer = new SimpleExoPlayer.Builder(this).build();
-            videoView.setPlayer(simpleVideoExoPlayer);
-            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "app"));
-            MediaSource dataSource = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(string));
-            videoView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            videoView.setControllerHideOnTouch(true);
-            simpleVideoExoPlayer.prepare(dataSource);
-            simpleVideoExoPlayer.setPlayWhenReady(true);
-            simpleVideoExoPlayer.addListener(new Player.EventListener() {
-                @Override
-                public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                    if(playbackState == Player.STATE_ENDED) {
-                        Log.d("prova video", "IS PLAYING: " +simpleVideoExoPlayer.isPlaying());
-                        Log.d("prova video", "SONO NEL LISTENER STATO FINITO");
-                        if(simpleAudioExoPlayer == null || !simpleAudioExoPlayer.isPlaying()) {//aggiunta adesso
-                            Log.d("flusso", "sono nel getParagraph dell'if dell'end simpleVideoPlayer");
-                            nextParagraph.setVisibility(View.VISIBLE);
-                            imageView.setBackgroundColor(255);
-                            videoView.setLayoutParams(new FrameLayout.LayoutParams(1, 1));
-                            index = index +1;
-                            imageView.setVisibility(View.VISIBLE);
-                            nextParagraph.setVisibility(View.INVISIBLE);
-                            getParagraph();
-                        }
-                    }
-                }
-            });
+
+            ActivityMediaPlayer mediaplayer = new ActivityMediaPlayer();
+
+            activityMediaPlayer(mediaplayer);
+
+
         } else {
             imageView.setImageBitmap(null);
             imageView.setBackgroundColor(Color.parseColor(color.get(index)));
         }
 
-        if (!audioName.get(index).isEmpty()) { //SE IL NOMEAUDIO NELLA COLONNA DEL DATABASE E' PRESENTE
-            //SE NON SOSTITUISCO GLI SPAZI CON I CARATTERI %20, L'AUDIO NON VIENE RIPRODOTTO
+        if (!audioName.get(index).isEmpty()) {
             String storyTableNoSpace = PepperStory.storyTitle;
             storyTableNoSpace = storyTableNoSpace.replaceAll(" ", "%20");
             Log.d("prova video", "prova stringa storyTableNoSpace: " + storyTableNoSpace);
-            String string = "https://pepper4socialstory.altervista.org/get_audio.php?table=" + storyTableNoSpace + "&id=" + index;
+            String string = "http://pepperfeelgood.altervista.org/get_audio.php?table=" + storyTableNoSpace + "&id=" + index;
             Log.d("prova video", "prova stringa connessione: " + string);
             simpleAudioExoPlayer = new SimpleExoPlayer.Builder(this).build();
             audioView.setPlayer(simpleAudioExoPlayer);
@@ -530,6 +515,11 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             });
         }
         startTalk();
+    }
+
+    private void activityMediaPlayer(Activity activity) {
+        Intent intent = new Intent(getApplicationContext(), activity.getClass());
+        startActivity(intent);
     }
 
     public void startTalk() {
