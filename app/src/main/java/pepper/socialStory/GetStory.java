@@ -534,6 +534,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             simpleAudioExoPlayer.stop();
             simpleAudioExoPlayer.release();
         }
+        //FIXME
         if(simpleVideoExoPlayer != null) {
             simpleVideoExoPlayer.stop();
             simpleVideoExoPlayer.release();
@@ -542,6 +543,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         finish();
     }
 
+    //FIXME
     @Override
     public void onRobotFocusGained(QiContext qiContext) {
 
