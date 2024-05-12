@@ -7,23 +7,15 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
@@ -46,7 +38,6 @@ import com.aldebaran.qi.sdk.object.conversation.PhraseSet;
 import com.aldebaran.qi.sdk.object.conversation.Say;
 import com.aldebaran.qi.sdk.object.touch.Touch;
 import com.aldebaran.qi.sdk.object.touch.TouchSensor;
-import com.aldebaran.qi.sdk.object.touch.TouchState;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -54,7 +45,6 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import org.json.JSONArray;
@@ -77,6 +67,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pepper.socialStory.HttpClient.HttpClientVideoUrl;
+
 public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
     private ImageView imageView;
@@ -86,11 +78,10 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
     private Button answare_right;
     private Button answare_wrong;
     private SimpleExoPlayer simpleAudioExoPlayer; //per l'audio
-    private SimpleExoPlayer simpleVideoExoPlayer; //per il video
     private final ArrayList<Bitmap> imageList = new ArrayList<>();
+    private final ArrayList<String> videoName = new ArrayList<>();
     private final ArrayList<String> story = new ArrayList<>();
     private final ArrayList<String> color = new ArrayList<>();
-    private final ArrayList<String> videoName = new ArrayList<>();
     private final ArrayList<String> audioName = new ArrayList<>();
     private String moral;
     private int index = 0;
@@ -233,14 +224,14 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
     }
 
     private void getColor() {
-
-        class GetColor extends AsyncTask<String, Void, String> {
+        class HttpClientColor extends AsyncTask<String, Void, String> {
+            String api = "http://pepperfeelgood.altervista.org/Cartella%20temporanea%20GETTERS/get_color.php";
 
             @Override
             protected String doInBackground(String... params) {
                 String table = params[0];
                 try {
-                    URL url = new URL ("http://pepperfeelgood.altervista.org/Cartella%20temporanea%20GETTERS/get_color.php");
+                    URL url = new URL (api);
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -284,21 +275,21 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             }
 
         }
-
-        GetColor getColor = new GetColor();
+        HttpClientColor getColor = new HttpClientColor();
         getColor.execute(""+PepperStory.storyTitle);
     }
 
 
     private void getVideoName() {
+        class HttpClientVideoName extends AsyncTask<String, Void, String> {
 
-        class GetVideoName extends AsyncTask<String, Void, String> {
+            private String api = "http://pepperfeelgood.altervista.org/get_video_name.php";
 
             @Override
             protected String doInBackground(String... params) {
                 String table = params[0];
                 try {
-                    URL url = new URL ("http://pepperfeelgood.altervista.org/get_video_name.php");
+                    URL url = new URL (api);
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                     httpURLConnection.setRequestMethod("POST");
                     httpURLConnection.setDoInput(true);
@@ -342,8 +333,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             }
 
         }
-
-        GetVideoName getVideoName = new GetVideoName();
+        HttpClientVideoName getVideoName = new HttpClientVideoName();
         getVideoName.execute(""+PepperStory.storyTitle);
     }
 
@@ -407,7 +397,6 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
 
     private void getMoral() {
-
         class GetMoral extends AsyncTask<String, Void, String> {
 
             @Override
@@ -463,7 +452,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
         //FIXME: sistemare la logica degli indici(quando metto == null i video partono, col != null non partono!)
 
-        if (imageList.get(index) == null) {
+        if (imageList.get(index) != null) {
             imageView.setBackgroundColor(255);
             imageView.setImageBitmap(imageList.get(index));
         } else if (!videoName.get(index).isEmpty()) {
@@ -471,12 +460,17 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             String storyTableNoSpace = PepperStory.storyTitle;
             storyTableNoSpace = storyTableNoSpace.replaceAll(" ", "%20");
             String string = "http://pepperfeelgood.altervista.org/get_video2.php?table=" + storyTableNoSpace + "&id=" + index;
-            Log.d("prova video", "prova stringa connessione: " + string);
 
-            ActivityMediaPlayer mediaplayer = new ActivityMediaPlayer();
-
-            activityMediaPlayer(mediaplayer);
-
+            HttpClientVideoUrl httpClient = new HttpClientVideoUrl(result -> {
+                if (result != null) {
+                    Log.d("result", "valore chiamata endpoint GetVideo2: " + result);
+                    ActivityMediaPlayer mediaplayer = new ActivityMediaPlayer();
+                    activityMediaPlayer(mediaplayer, result);
+                } else {
+                    System.out.println("Failed to fetch data from server.");
+                }
+            });
+            httpClient.execute(string);
 
         } else {
             imageView.setImageBitmap(null);
@@ -517,10 +511,12 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         startTalk();
     }
 
-    private void activityMediaPlayer(Activity activity) {
+    private void activityMediaPlayer(Activity activity, String url) {
         Intent intent = new Intent(getApplicationContext(), activity.getClass());
+        intent.putExtra("url", url);
         startActivity(intent);
     }
+
 
     public void startTalk() {
         setSpeechBarDisplayStrategy(SpeechBarDisplayStrategy.IMMERSIVE);
@@ -750,7 +746,6 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         }
     }
 
-
     private int counterTouch(int currentSecInit, int tap) {
         AtomicBoolean isTouched = new AtomicBoolean(false);
         AtomicInteger countTouch = new AtomicInteger();
@@ -787,7 +782,6 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             return tap;
         }
     }
-
 
 
     public static String fun( int j, int valoreFin, String testo, ArrayList<String> pos){

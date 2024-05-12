@@ -1,7 +1,6 @@
 package pepper.socialStory;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
@@ -18,71 +17,32 @@ public class ActivityMediaPlayer extends Activity implements SurfaceHolder.Callb
     private MediaPlayer mediaPlayer;
     private SurfaceHolder holder;
     private SurfaceView surface;
-    private String string = "http://pepperfeelgood.altervista.org/get_video2.php?table=testVideo&id=0";
-        //"http://pepperfeelgood.altervista.org/get_video2.php?table=testVideo&id=0"
-    //"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    private String url;
 
-    public ActivityMediaPlayer(){}
+    public ActivityMediaPlayer() {
+        // Inizializzazione, se necessario
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.get_video);
 
+        Intent intent = getIntent();
+        String gettingUrl = intent.getStringExtra("url");
+
+        this.url = gettingUrl;
+
         surface = findViewById(R.id.videoView);
         holder = surface.getHolder();
         holder.addCallback(this);
     }
 
-    /*@Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-
-            //mediaPlayer = MediaPlayer.create(this, Uri.parse(string));
-
-            mediaPlayer = new MediaPlayer().apply {
-                setAudioAttributes(
-                        AudioAttributes.Builder()
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
-                                .build()
-                )
-                setDataSource(url)
-                prepare()
-                start()
-            }
-
-            Log.d("valore getHolder()", "surface.getHolder(): " + surface.getHolder());
-            Log.d("valore MediaPlayer()", "mediaPlayer: " + mediaPlayer);
-
-            mediaPlayer.setAudioAttributes(
-                    new AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
-            );
-
-            mediaPlayer.setDisplay(holder);
-            mediaPlayer.setOnPreparedListener(
-                    new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mediaPlayer) {
-                            mediaPlayer.start();
-                        }
-                    }
-            );
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    mediaPlayer.release();
-                }
-            });
-    }*/
-
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         mediaPlayer = new MediaPlayer();
 
         try {
-            mediaPlayer.setDataSource(this, Uri.parse(string));
+            mediaPlayer.setDataSource(this, Uri.parse(url));
             mediaPlayer.setAudioAttributes(
                     new AudioAttributes.Builder()
                             .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
@@ -117,7 +77,6 @@ public class ActivityMediaPlayer extends Activity implements SurfaceHolder.Callb
             e.printStackTrace();
         }
     }
-
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
