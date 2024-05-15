@@ -7,6 +7,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.VideoView;
 
 import com.aldebaran.qi.sdk.QiContext;
 import com.aldebaran.qi.sdk.QiSDK;
@@ -64,6 +67,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,12 +76,15 @@ import pepper.socialStory.HttpClient.HttpClientVideoUrl;
 public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
     private ImageView imageView;
+    private VideoView videoView;
     private ImageButton nextParagraph;
     private PlayerView audioView;
     private LinearLayout button_answare;
     private Button answare_right;
     private Button answare_wrong;
     private SimpleExoPlayer simpleAudioExoPlayer; //per l'audio
+    private MediaPlayer mediaPlayer = new MediaPlayer(); //video
+    private SimpleExoPlayer simpleVideoExoPlayer;
     private final ArrayList<Bitmap> imageList = new ArrayList<>();
     private final ArrayList<String> videoName = new ArrayList<>();
     private final ArrayList<String> story = new ArrayList<>();
@@ -90,14 +97,13 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
     private TouchSensor touchSensor;
     private static final int DELAY_TAP = 4; //Tempo di attesa dopo un tap per verificare che sia un tap singolo o doppio
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.get_story);
         imageView = findViewById(R.id.imageView);
-
+        videoView = findViewById(R.id.videoView);
         audioView = findViewById(R.id.audioView);
         nextParagraph = findViewById(R.id.nextParagraph);
 
@@ -452,7 +458,8 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
         //FIXME: sistemare la logica degli indici(quando metto == null i video partono, col != null non partono!)
 
-        if (imageList.get(index) != null) {
+
+        if (imageList.get(index) == null) {
             imageView.setBackgroundColor(255);
             imageView.setImageBitmap(imageList.get(index));
         } else if (!videoName.get(index).isEmpty()) {
@@ -464,8 +471,36 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             HttpClientVideoUrl httpClient = new HttpClientVideoUrl(result -> {
                 if (result != null) {
                     Log.d("result", "valore chiamata endpoint GetVideo2: " + result);
-                    ActivityMediaPlayer mediaplayer = new ActivityMediaPlayer();
-                    activityMediaPlayer(mediaplayer, result);
+
+                    try {
+                        mediaPlayer.setAudioAttributes(
+                                new AudioAttributes.Builder()
+                                        .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+                                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                                        .build()
+                        );
+
+                        Log.d("Valore URl", "Url dopo HttpClient: "+ result);
+
+                        mediaPlayer.setDataSource(result);
+                        mediaPlayer.prepare();
+                        mediaPlayer.setOnPreparedListener(mp -> {
+                            // Avvia la riproduzione quando il MediaPlayer è pronto
+                            mediaPlayer.start();
+                            videoView.setVisibility(View.VISIBLE);
+                            videoView.setVideoURI(Uri.parse(result));
+                            videoView.start();
+                        });
+
+                        mediaPlayer.setOnCompletionListener(mp -> {
+                            // Handle completion of video
+                            videoView.setVisibility(View.GONE);
+                        });
+
+                    }catch(IOException e) {
+                        e.printStackTrace();
+                    }
+
                 } else {
                     System.out.println("Failed to fetch data from server.");
                 }
@@ -496,7 +531,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                     if (playbackState == Player.STATE_ENDED) {
                         Log.d("prova audio", "IS PLAYING: " + simpleAudioExoPlayer.isPlaying());
                         Log.d("prova audio", "SONO NEL LISTENER STATO FINITO");
-                        if (simpleVideoExoPlayer == null || !simpleVideoExoPlayer.isPlaying()) {
+                        if (mediaPlayer == null || !mediaPlayer.isPlaying()) {
                             Log.d("flusso", "sono nel getParagraph dell'if dell'end simpleAudioPlayer");
                             nextParagraph.setVisibility(View.VISIBLE);
                             index = index +1;
@@ -511,13 +546,6 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         startTalk();
     }
 
-    private void activityMediaPlayer(Activity activity, String url) {
-        Intent intent = new Intent(getApplicationContext(), activity.getClass());
-        intent.putExtra("url", url);
-        startActivity(intent);
-    }
-
-
     public void startTalk() {
         setSpeechBarDisplayStrategy(SpeechBarDisplayStrategy.IMMERSIVE);
         setSpeechBarDisplayPosition(SpeechBarDisplayPosition.TOP);
@@ -530,16 +558,16 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
             simpleAudioExoPlayer.stop();
             simpleAudioExoPlayer.release();
         }
-        //FIXME
-        if(simpleVideoExoPlayer != null) {
-            simpleVideoExoPlayer.stop();
-            simpleVideoExoPlayer.release();
+
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer  = null;
         }
+
         startActivity(new Intent(GetStory.this, PepperStory.class));
         finish();
     }
 
-    //FIXME
     @Override
     public void onRobotFocusGained(QiContext qiContext) {
 
@@ -551,13 +579,13 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         Say sayEndStory = SayBuilder.with(qiContext).withPhrase(endStory).build();
 
         if (index+1 < story.size()) {
-            if(simpleVideoExoPlayer == null && simpleAudioExoPlayer == null) {
+            if(mediaPlayer == null && simpleAudioExoPlayer == null) {
                 Log.d("flusso", "AUDIO NULL E VIDEO NULL");
                 index += 1;
                 runOnUiThread(() -> imageView.setVisibility(View.VISIBLE));
                 runOnUiThread(() -> nextParagraph.setVisibility(View.INVISIBLE));
                 runOnUiThread(this::getParagraph);
-            } else if (simpleAudioExoPlayer != null && simpleVideoExoPlayer == null) {
+            } else if (simpleAudioExoPlayer != null && mediaPlayer == null) {
                 if (!simpleAudioExoPlayer.isPlaying()) {
                     Log.d("flusso", "AUDIO IS PLAYING FALSE E VIDEO NULL");
                     index += 1;
@@ -566,14 +594,14 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                     runOnUiThread(this::getParagraph);
                 }
             } else if (simpleAudioExoPlayer == null) {
-                if (!simpleVideoExoPlayer.isPlaying()) {
+                if (!mediaPlayer.isPlaying()) {
                     Log.d("flusso", "VIDEO IS PLAYING FALSE E AUDIO NULL");
                     index += 1;
                     runOnUiThread(() -> imageView.setVisibility(View.VISIBLE));
                     runOnUiThread(() -> nextParagraph.setVisibility(View.INVISIBLE));
                     runOnUiThread(this::getParagraph);
                 }
-            } else if (!simpleAudioExoPlayer.isPlaying() && !simpleVideoExoPlayer.isPlaying()) {
+            } else if (!simpleAudioExoPlayer.isPlaying() && !mediaPlayer.isPlaying()) {
                 Log.d("flusso", "AUDIO E VIDEO IS PLAYING FALSE");
                 index += 1;
                 runOnUiThread(() -> imageView.setVisibility(View.VISIBLE));
@@ -802,6 +830,11 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
     protected void onDestroy() {
         QiSDK.unregister(this, this);
         super.onDestroy();
+
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer  = null;
+        }
     }
 
 }
