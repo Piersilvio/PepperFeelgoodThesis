@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -462,8 +463,10 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         if (imageList.get(index) == null) {
             imageView.setBackgroundColor(255);
             imageView.setImageBitmap(imageList.get(index));
+            Log.d("indice imageList", "value: " + index);
         } else if (!videoName.get(index).isEmpty()) {
 
+            Log.d("indice imageList", "value: " + index);
             String storyTableNoSpace = PepperStory.storyTitle;
             storyTableNoSpace = storyTableNoSpace.replaceAll(" ", "%20");
             String string = "http://pepperfeelgood.altervista.org/get_video2.php?table=" + storyTableNoSpace + "&id=" + index;
@@ -485,16 +488,27 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                         mediaPlayer.setDataSource(result);
                         mediaPlayer.prepare();
                         mediaPlayer.setOnPreparedListener(mp -> {
-                            // Avvia la riproduzione quando il MediaPlayer è pronto
+
                             mediaPlayer.start();
                             videoView.setVisibility(View.VISIBLE);
                             videoView.setVideoURI(Uri.parse(result));
                             videoView.start();
                         });
 
-                        mediaPlayer.setOnCompletionListener(mp -> {
-                            // Handle completion of video
-                            videoView.setVisibility(View.GONE);
+                        mediaPlayer.setOnCompletionListener(mediaPlayer -> {
+                            Log.d("prova video", "IS PLAYING: " + mediaPlayer.isPlaying());
+                            Log.d("prova video", "SONO NEL LISTENER STATO FINITO");
+                            if (simpleAudioExoPlayer == null || !simpleAudioExoPlayer.isPlaying()) {
+                                Log.d("flusso", "sono nel getParagraph dell'if dell'end simpleVideoPlayer");
+                                nextParagraph.setVisibility(View.VISIBLE);
+                                imageView.setBackgroundColor(Color.WHITE);
+                                videoView.setLayoutParams(new FrameLayout.LayoutParams(1, 1));
+                                index++;
+                                imageView.setVisibility(View.VISIBLE);
+                                nextParagraph.setVisibility(View.INVISIBLE);
+                                Log.d("indice", "value: " + index);
+                                getParagraph();
+                            }
                         });
 
                     }catch(IOException e) {
@@ -510,6 +524,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         } else {
             imageView.setImageBitmap(null);
             imageView.setBackgroundColor(Color.parseColor(color.get(index)));
+            Log.d("indice", "value: " + index);
         }
 
         if (!audioName.get(index).isEmpty()) {
@@ -536,6 +551,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                             nextParagraph.setVisibility(View.VISIBLE);
                             index = index +1;
                             //imageView.setVisibility(imageView.VISIBLE); INUTILE?
+                            Log.d("indice", "value: " + index);
                             nextParagraph.setVisibility(View.INVISIBLE);
                             getParagraph();
                         }
@@ -560,8 +576,8 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         }
 
         if (mediaPlayer != null) {
+            mediaPlayer.stop();
             mediaPlayer.release();
-            mediaPlayer  = null;
         }
 
         startActivity(new Intent(GetStory.this, PepperStory.class));
