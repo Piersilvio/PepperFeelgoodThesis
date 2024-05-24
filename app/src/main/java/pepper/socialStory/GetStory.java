@@ -200,12 +200,13 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                     bufferedWriter.close();
                     InputStream inputStream = httpURLConnection.getInputStream();
                     image = BitmapFactory.decodeStream(inputStream);
-                    if(image != null){
+                    imageList.add(Integer.parseInt(id), image);
+                    /*if(image != null){
                         imageList.add(Integer.parseInt(id), image);
                     } else {
                         imageList.add(Integer.parseInt(id), BitmapFactory.decodeResource(getResources(),
                                 R.drawable.pepper_talking));
-                    }
+                    }*/
                     inputStream.close();
                     httpURLConnection.disconnect();
                 } catch (IOException e) {
@@ -457,10 +458,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
     private void getParagraph() {
 
-        //FIXME: sistemare la logica degli indici(quando metto == null i video partono, col != null non partono!)
-
-
-        if (imageList.get(index) == null) {
+        if (imageList.get(index) != null) {
             imageView.setBackgroundColor(255);
             imageView.setImageBitmap(imageList.get(index));
             Log.d("indice imageList", "value: " + index);
@@ -473,7 +471,6 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
 
             HttpClientVideoUrl httpClient = new HttpClientVideoUrl(result -> {
                 if (result != null) {
-                    Log.d("result", "valore chiamata endpoint GetVideo2: " + result);
 
                     try {
                         mediaPlayer.setAudioAttributes(
@@ -483,12 +480,9 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                                         .build()
                         );
 
-                        Log.d("Valore URl", "Url dopo HttpClient: "+ result);
-
                         mediaPlayer.setDataSource(result);
-                        mediaPlayer.prepare();
+                        mediaPlayer.prepareAsync();
                         mediaPlayer.setOnPreparedListener(mp -> {
-
                             mediaPlayer.start();
                             videoView.setVisibility(View.VISIBLE);
                             videoView.setVideoURI(Uri.parse(result));
@@ -507,7 +501,14 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                                 imageView.setVisibility(View.VISIBLE);
                                 nextParagraph.setVisibility(View.INVISIBLE);
                                 Log.d("indice", "value: " + index);
-                                getParagraph();
+                                if(index < story.size()){
+                                    getParagraph();
+                                } else { //Torna al menu iniziale
+
+                                    startActivity(new Intent(GetStory.this, PepperStory.class));
+                                    finish();
+                                } // apposto ora funziona come prima. Pusha su github magari
+                                //va ma alla fine non farà questa parte
                             }
                         });
 
@@ -627,6 +628,8 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
         } else { //SE SIAMO ALL'ULTIMO PARAGRAFO
             Log.d("flusso", "sono nell'else ultimo paragrafo");
             runOnUiThread(() -> nextParagraph.setVisibility(View.INVISIBLE));
+
+            /*
             if (!moral.isEmpty()) {
                 Phrase morale = new Phrase("\\rspd=85\\\\wait=9\\La morale della storia è: " + moral);
                 Say say1 = SayBuilder.with(qiContext).withPhrase(morale).build();
@@ -672,7 +675,7 @@ public class GetStory extends RobotActivity implements RobotLifecycleCallbacks {
                 sayEndStory.run();
                 startActivity(new Intent(GetStory.this, PepperStory.class));
                 finish();
-            }
+            }*/
         }
 
         nextParagraph.setOnClickListener(view -> {
